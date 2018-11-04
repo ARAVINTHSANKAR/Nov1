@@ -313,3 +313,16 @@ method to insert user
 
 REFER BELOW LINK FOR SIMPLE TRANSACTION
 			https://stackoverflow.com/questions/42870374/node-js-7-how-to-use-sequelize-transaction-with-async-await
+
+addUser: 
+
+1. should not allow existing name from db.
+2. should encrypt password and store in db
+3. can implement jwt
+
+General
+
+1. should optmize code
+2. variable names should be relevent
+3. intentation
+4. error and success msg should be clear
