@@ -283,3 +283,30 @@ UserTableStructure.belongsTo(Company, {foreignKey: 'fk_company'});
 snake_case
 PascalCase
 camelCase
+
+
+default launch.json
+
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/API\\app\\dao\\dao.ts",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        }
+    ]
+}
+
+method to insert user
+            // await sequelize.query(queries.insertAccessor, {
+            //     replacements: userDetailsPayLoad,
+            //     type: sequelize.QueryTypes.INSERT
+            // });

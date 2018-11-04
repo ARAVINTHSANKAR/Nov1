@@ -4,7 +4,7 @@ import { dao } from '../dao/dao';
 const router: Router = Router();
 
 router.post('/add', (req: Request, res: Response) => {
-        dao.addAccessor(req, res);
+        dao.saveUser(req, res);
 });
 
 export const signUpController: Router = router;
