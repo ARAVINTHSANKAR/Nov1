@@ -1,20 +1,8 @@
-typings install dt~node --save --global
-typings install dt~es6-shim --save --global
-typings install dt~express --save --global
-typings install dt~serve-static --save --global
-typings install dt~express-serve-static-core --save --global
-typings install dt~mime --save --global
+to initialize a folder as git repo in github
 
-. ├── app
-  │ ├── controllers
-  │ │ ├── index.ts 
-  │ │ └── welcomeController.ts 
-  │ └── server.ts 
-  ├── node_modules 
-  ├── package.json 
-  ├── tsconfig.json 
-  ├── typings 
-  └── typings.json
+https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/
+
+
 
   app folder la vache give tsc command
 
@@ -293,3 +281,5 @@ UserTableStructure.belongsTo(Company, {foreignKey: 'fk_company'});
 
 // this is snake case
 snake_case
+PascalCase
+camelCase
