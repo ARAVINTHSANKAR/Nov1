@@ -310,3 +310,6 @@ method to insert user
             //     replacements: userDetailsPayLoad,
             //     type: sequelize.QueryTypes.INSERT
             // });
+
+REFER BELOW LINK FOR SIMPLE TRANSACTION
+			https://stackoverflow.com/questions/42870374/node-js-7-how-to-use-sequelize-transaction-with-async-await
