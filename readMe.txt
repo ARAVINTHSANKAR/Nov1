@@ -326,3 +326,21 @@ General
 2. variable names should be relevent
 3. intentation
 4. error and success msg should be clear
+5. joi validation is must
+6. have to check all apis by creating a new db without PK
+7. comments should be added for each method and some logic also for queries
+8. optimize query for nextRow Id
+query to update multiple particularLoginRow
+update drinks
+set dName = case drinksId
+                  when 1 then 'limer'
+                  when 5 then 'rose'
+                end
+where drinksId in (1, 5);
+/*                 const updateQueryForNextIdTable = `update LastRowIndex
+                    set lastRowId = case projectxTableName
+                                      when BatteryDetails then `+ batteryDetails.batteryId + ` 
+                                      when BikeDetails then `+ bikeDetails.bikeDetailsId + `
+                                      when BuyerDetails then `+ buyerDetails.buyerId + `
+                                    end
+                    where nextId in (3, 6, 7);`; */
