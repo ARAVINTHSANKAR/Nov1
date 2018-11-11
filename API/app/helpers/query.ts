@@ -7,7 +7,7 @@ export const queries = {
                         (:accessId, :name, :userRoleId, :password, :contact, :isActive)
                         
                         SET IDENTITY_INSERT AccessorDetails OFF`,
-                        
+
     searchParticularUser: `SELECT * from AccessorDetails WHERE name = :payLoadName`,
 
     insertBatteryDetails: `SET IDENTITY_INSERT BatteryDetails ON
@@ -34,5 +34,35 @@ export const queries = {
                         (bikeDetailsId, maker, bikeModel, registrationNumber, bikeColor) values
                         (:bikeDetailsId, :maker, :bikeModel, :registrationNumber, :bikeColor)
                         
-                        SET IDENTITY_INSERT BikeDetails OFF`
+                        SET IDENTITY_INSERT BikeDetails OFF`,
+
+    insertBatteryBikeBuyerIDs: `INSERT INTO BatteryBikeBuyerIds
+                        (batteryBikeBuyerId, batteryId, bikeId, buyerId) values 
+                        (:batteryBikeBuyerId, :batteryId, :bikeId, :buyerId)`,
+
+    getSalesDetails: `SELECT 
+                btd.batteryNumber,
+                bm.batteryModel,
+                bb.batteryBrand,
+                bkd.registrationNumber,
+                byd.name,
+                byd.purchasedDate
+            FROM BatteryBikeBuyerIds bbbids
+                INNER JOIN BatteryDetails btd ON bbbids.batteryId = btd.batteryId
+                INNER JOIN BikeDetails bkd ON bbbids.bikeId = bkd.bikeDetailsId
+                INNER JOIN BuyerDetails byd ON bbbids.buyerId = byd.buyerId
+                INNER JOIN BatteryModels bm ON btd.batteryModelId = bm.batteryModelId
+                INNER JOIN BatteryBrands bb ON btd.batteryBrandId = bb.batteryBrandId`,
+
+    fetchParticularBatteryDetails: `SELECT * 
+    FROM
+        BatteryBikeBuyerIds 
+    INNER JOIN BatteryDetails on
+        (BatteryBikeBuyerIds.batteryId = BatteryDetails.batteryId)
+    INNER JOIN BikeDetails on
+        (BatteryBikeBuyerIds.bikeId= BikeDetails.bikeDetailsId)
+    INNER JOIN BuyerDetails on
+        (BatteryBikeBuyerIds.buyerId= BuyerDetails.buyerId)
+    where 
+        batteryBikeBuyerId = :batteryBikeBuyerId`
 }

@@ -10,19 +10,20 @@ import { AccessorDetails } from '../models/AccessorDetails';
 
 export class dao {
 
-    public static errorBag: any = {
+    public errorBag: any = {
         message: "Failed",
         dbData: null,
         comments: ""
     };
 
-    public static successBag: any = {
+    public successBag: any = {
         message: "Success",
         dbData: null,
         comments: ""
     };
 
     public saveUser = async (req: Request, res: Response) => {
+        let daoObj = new dao();
         let userDetailsPayLoad: AccessorDetails = req.body;
         let transaction;
         transaction = await sequelize.transaction();
@@ -45,22 +46,23 @@ export class dao {
                     transaction
                 });
                 await transaction.commit();
-                dao.successBag.comments = "Insertion success";
-                dao.successBag.dbData = dbResponse;
-                res.send(dao.successBag);
+                daoObj.successBag.comments = "Insertion success";
+                daoObj.successBag.dbData = dbResponse;
+                res.send(daoObj.successBag);
             } else {
-                dao.errorBag.comments = "Fetching last row index failed as entire array is empty";
+                daoObj.errorBag.comments = "Fetching last row index failed as entire array is empty";
                 throw 'error in fetching data from LastRowIndex';
             }
         } catch (error) {
             await transaction.rollback();
-            dao.errorBag.comments = "Insertion failed";
-            dao.errorBag.dbData = error ? error : [];
-            res.send(dao.errorBag);
+            daoObj.errorBag.comments = "Insertion failed";
+            daoObj.errorBag.dbData = error ? error : [];
+            res.send(daoObj.errorBag);
         }
     }
 
     public authentication = async (req: Request, res: Response) => {
+        let daoObj = new dao();
         let transaction;
         let requestedUser = req.body;
         transaction = await sequelize.transaction();
@@ -74,9 +76,9 @@ export class dao {
             if (userDetails.length > 0) {
                 const isAuthSuccess = (requestedUser.password == userDetails[0].password.trim());
                 if (isAuthSuccess) {
-                    dao.successBag.comments = 'Authentication success';
-                    dao.successBag.dbData = userDetails;
-                    res.send(dao.successBag);
+                    daoObj.successBag.comments = 'Authentication success';
+                    daoObj.successBag.dbData = userDetails;
+                    res.send(daoObj.successBag);
                 } else {
                     throw 'Incorrect Password';
                 }
@@ -84,21 +86,23 @@ export class dao {
                 throw 'User Details unavailable';
             }
         } catch (error) {
-            dao.errorBag.comments = "Something went wrong";
-            dao.errorBag.dbData = error ? error : [];
-            res.send(dao.errorBag);
+            transaction.rollback();
+            daoObj.errorBag.comments = "Something went wrong";
+            daoObj.errorBag.dbData = error ? error : [];
+            res.send(daoObj.errorBag);
         };
     }
 
     public saveBattery = async (req: Request, res: Response) => {
+        let daoObj = new dao();
         const batteryDetails = req.body.batteryDetails;
         const buyerDetails = req.body.buyerDetails;
         const bikeDetails = req.body.bikeDetails;
         let transaction = await sequelize.transaction();
         try {
-            let lastRowIndexResponse = await dao.getLastRowIndex('BatteryDetails', 'BuyerDetails', 'BikeDetails');
-            let batteryLastRowDetails, bikeLastRowDetails, buyerLastRowDetails;
-            if (lastRowIndexResponse.length == 3) {
+            let lastRowIndexResponse = await dao.getLastRowIndex('BatteryDetails', 'BuyerDetails', 'BikeDetails', 'BatteryBikeBuyerIds');
+            let batteryLastRowDetails, bikeLastRowDetails, buyerLastRowDetails, BatteryBikeBuyerIdsLastRowDetails;
+            if (lastRowIndexResponse.length == 4) {
                 for (let i = 0; i < lastRowIndexResponse.length; i++) {
                     if (lastRowIndexResponse[i].projectxTableName.trim() == 'BatteryDetails') {
                         batteryLastRowDetails = lastRowIndexResponse[i];
@@ -106,6 +110,8 @@ export class dao {
                         bikeLastRowDetails = lastRowIndexResponse[i];
                     } else if (lastRowIndexResponse[i].projectxTableName.trim() == 'BuyerDetails') {
                         buyerLastRowDetails = lastRowIndexResponse[i];
+                    } else if (lastRowIndexResponse[i].projectxTableName.trim() == 'BatteryBikeBuyerIds') {
+                        BatteryBikeBuyerIdsLastRowDetails = lastRowIndexResponse[i];
                     }
                 }
                 batteryDetails.batteryId = batteryLastRowDetails.lastRowId + 1;
@@ -126,6 +132,7 @@ export class dao {
                     type: sequelize.QueryTypes.INSERT,
                     transaction
                 });
+                let bbbId = BatteryBikeBuyerIdsLastRowDetails.lastRowId + 1;
                 const a = `UPDATE LastRowIndex
                 SET lastRowId = `+ batteryDetails.batteryId + `
                 WHERE nextId = 3;`;
@@ -135,6 +142,9 @@ export class dao {
                 const c = `UPDATE LastRowIndex
                 SET lastRowId = `+ buyerDetails.buyerId + `
                 WHERE nextId = 7;`;
+                const d = `UPDATE LastRowIndex
+                SET lastRowId = `+ bbbId + `
+                WHERE nextId = 11;`;
                 await sequelize.query(a, {
                     type: sequelize.QueryTypes.UPDATE,
                     transaction
@@ -147,17 +157,33 @@ export class dao {
                     type: sequelize.QueryTypes.UPDATE,
                     transaction
                 });
+                await sequelize.query(d, {
+                    type: sequelize.QueryTypes.UPDATE,
+                    transaction
+                });
+                let batteryBikeBuyerInsertionQuery = queries.insertBatteryBikeBuyerIDs;
+                let IdsObj = {
+                    batteryBikeBuyerId: bbbId,
+                    batteryId: batteryDetails.batteryId,
+                    bikeId: bikeDetails.bikeDetailsId,
+                    buyerId: buyerDetails.buyerId
+                };
+                await sequelize.query(batteryBikeBuyerInsertionQuery, {
+                    replacements: IdsObj,
+                    type: sequelize.QueryTypes.INSERT,
+                    transaction
+                })
                 await transaction.commit();
-                dao.successBag.comments = "Details saved successfully";
-                res.send(dao.successBag);
+                daoObj.successBag.comments = "Battery details saved successfully";
+                res.send(daoObj.successBag);
             } else {
                 throw 'error in fetching data from LastRowIndex';
             }
         } catch (error) {
             await transaction.rollback();
-            dao.errorBag.comments = "Operation Failed";
-            dao.errorBag.dbData = error ? error : [];
-            res.send(dao.errorBag);
+            daoObj.errorBag.comments = "Operation Failed";
+            daoObj.errorBag.dbData = error;
+            res.send(daoObj.errorBag);
         }
     }
 
@@ -182,5 +208,47 @@ export class dao {
             }
         }
         return lastRowIndexResponse;
+    }
+
+    public getSalesHistory = async (req: Request, res: Response) => {
+        let daoObj = new dao();
+        let transaction;
+        transaction = await sequelize.transaction();
+        try {
+            const salesDetails = await sequelize.query(queries.getSalesDetails, {
+                type: sequelize.QueryTypes.SELECT
+            });
+            await transaction.commit();
+            daoObj.successBag.comments = 'Sales Details Fetched successfully';
+            daoObj.successBag.dbData = salesDetails;
+            res.send(daoObj.successBag);
+        } catch(error) {
+            await transaction.rollback();
+            daoObj.errorBag.comments = 'Failed';
+            daoObj.errorBag.dbData = error;
+            res.send(daoObj.errorBag);
+        }
+    }
+
+    public getParticularBatteryDetails = async (req: Request, res: Response) => {
+        let daoObj = new dao();
+        let transaction;
+        let bbbId = req.params['batteryBikeBuyerId'];
+        transaction = await sequelize.transaction();
+        try {
+            const batteryDetails = await sequelize.query(queries.fetchParticularBatteryDetails, {
+                replacements: {batteryBikeBuyerId: bbbId},
+                type: sequelize.QueryTypes.SELECT
+            });
+            await transaction.commit();
+            daoObj.successBag.comments = 'success';
+            daoObj.successBag.dbData = batteryDetails;
+            res.send(daoObj.successBag);
+        } catch (error) {
+            await transaction.rollback();
+            daoObj.errorBag.comments = 'FAILED';
+            daoObj.errorBag.dbData = error;
+            res.send(daoObj.errorBag);
+        }
     }
 }

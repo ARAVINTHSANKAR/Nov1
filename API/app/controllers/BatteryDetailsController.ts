@@ -8,4 +8,12 @@ router.post('/savebatterydetails', (req: Request, res: Response) => {
     daoObj.saveBattery(req, res);
 });
 
+router.get('/salesHistory', (req: Request, res: Response) => {
+    daoObj.getSalesHistory(req, res);
+});
+
+router.get('/batteryDetails/:batteryBikeBuyerId', (req: Request, res: Response) => {
+    daoObj.getParticularBatteryDetails(req, res);
+});
+
 export const BatteryDetailsController: Router = router;

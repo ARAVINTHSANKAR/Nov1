@@ -330,6 +330,12 @@ General
 6. have to check all apis by creating a new db without PK
 7. comments should be added for each method and some logic also for queries
 8. optimize query for nextRow Id
+9. refer web app in iff app regarding pdf download
+10. IDENTITY_INSERT should not be mentioned in a query if that id is not a primary key
+11. if needed v can use async await / promise.all for fetching all details for a particular battery as v have that 
+	id of battery bike buyer details
+12. script file to start services.msc
+
 query to update multiple particularLoginRow
 update drinks
 set dName = case drinksId

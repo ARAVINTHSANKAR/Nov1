@@ -12,8 +12,4 @@ router.post('/authenticate', (req: Request, res: Response) => {
     daoObj.authentication(req, res);
 });
 
-router.post('/savebatterydetails', (req: Request, res: Response) => {
-    daoObj.saveBattery(req, res);
-});
-
 export const signUpController: Router = router;
