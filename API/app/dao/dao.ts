@@ -321,4 +321,88 @@ export class dao {
             res.send(daoObj.errorBag);
         }
     }
+
+    public updateBatteryDetailsForWarrenty = async(req: Request, res: Response) => {
+        let transaction;
+        let daoObj = new dao();
+        let values: any = {};
+        transaction = await sequelize.transaction();
+        try {
+            if(req.body['warrentyType'] !== 0) {
+                values['isReplacable'] = 1;
+            } else {
+                values['isReplacable'] = 0;
+            }
+            values['batteryId'] = req.body['batteryId'];
+            values['batteryNumber'] = req.body['batteryNumber'];
+            values['type'] = req.body['warrentyType'];
+            await sequelize.query(queries.updateWarrentyType, {
+                type: sequelize.QueryTypes.UPDATE,
+                replacements: values
+            });
+            await transaction.commit();
+            daoObj.successBag.comments = 'Success';
+            res.send(daoObj.successBag);
+        } catch (error) {
+            await transaction.rollback();
+            daoObj.errorBag.comments = 'Failed';
+            daoObj.errorBag.dbData = error;
+            res.send(daoObj.errorBag);
+        }
+    }
+
+    public saveWarrentyBattery = async(req: Request, res: Response) => {
+        let values: any = {};
+        let transaction;
+        let daoObj = new dao();
+        transaction = await sequelize.transaction();
+        try {
+            let count = await sequelize.query(queries.checkForTableExists, {
+                type: sequelize.QueryTypes.SELECT
+            });
+            if(count[0]['totalCount'] === 0) {
+                values['warrentyBatteryId'] = 1;
+            } else {
+                values['warrentyBatteryId'] = count[0]['totalCount'] + 1;
+            }
+            values['oldBatteryId'] = req.body['oldBatteryId'];
+            values['exchangeReason'] = req.body['exchangeReason'];
+            values['warrentyBatteryNumber'] = req.body['warrentyBatteryNumber'];
+            values['exchangerName'] = req.body['exchangerName'];
+            console.log(values)
+            await sequelize.query(queries.saveWarrentyBattery, {
+                replacements: values,
+                type: sequelize.QueryTypes.INSERT
+            });
+            await transaction.commit();
+            daoObj.successBag.comments = 'Success';
+            res.send(daoObj.successBag);
+        } catch (error) {
+            await transaction.rollback();
+            daoObj.errorBag.comments = 'Failed';
+            daoObj.errorBag.dbData = error;
+            res.send(daoObj.errorBag);
+        }
+    }
+
+    public fetchWarrentyBatteryDetails = async(req: Request, res: Response) => {
+        let values: any = {};
+        let transaction;
+        let daoObj = new dao();
+        transaction = await sequelize.transaction();
+        try {
+            const result = await sequelize.query(queries.getWarrentyBatteries, {
+                type: sequelize.QueryTypes.SELECT
+            });
+            await transaction.commit();
+            daoObj.successBag.comments = 'Success';
+            daoObj.successBag.dbData = result;
+            res.send(daoObj.successBag);
+        } catch (error) {
+            await transaction.rollback();
+            daoObj.errorBag.comments = 'Failed';
+            daoObj.errorBag.dbData = error;
+            res.send(daoObj.errorBag);
+        }
+    }
 }

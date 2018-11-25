@@ -36,4 +36,16 @@ router.get('/batteryDetails/:batteryBikeBuyerId', (req: Request, res: Response) 
     daoObj.getParticularBatteryDetails(req, res);
 });
 
+router.put('/claimWarrenty', (req: Request, res: Response) => {
+    daoObj.updateBatteryDetailsForWarrenty(req, res);
+});
+
+router.post('/saveWarrentyBattery', (req: Request, res: Response) => {
+    daoObj.saveWarrentyBattery(req, res);
+});
+
+router.get('/getWarrentyBatteries', (req: Request, res: Response) => {
+    daoObj.fetchWarrentyBatteryDetails(req, res);
+});
+
 export const signUpController: Router = router;

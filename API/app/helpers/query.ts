@@ -14,9 +14,10 @@ export const queries = {
 
                             INSERT INTO BatteryDetails
                             (batteryId, batteryBrandId, batteryModelId, bQuantity, batteryPrice, cgst, cgstAmount,
-                            sgst, sgstAmount, totalPrice, purchasedFrom, batteryNumber) values
+                            sgst, sgstAmount, totalPrice, purchasedFrom, batteryNumber, isWarrentyBattery, warrentyType)
+                            values
                             (:batteryId, :batteryBrandId, :batteryModelId, :bQuantity, :batteryPrice, :cgst, :cgstAmount,
-                            :sgst, :sgstAmount, :totalPrice, :purchasedFrom, :batteryNumber)
+                            :sgst, :sgstAmount, :totalPrice, :purchasedFrom, :batteryNumber, 0, 0)
                             
                             SET IDENTITY_INSERT BatteryDetails OFF`,
 
@@ -24,7 +25,7 @@ export const queries = {
                         
                         INSERT INTO BuyerDetails
                         (buyerId, name, contact, role, purchasedDate, location) values 
-                        (:buyerId, :name, :contact, :role, :purchasedDate, :location)
+                        (:buyerId, :name, :contact, :role, GETDATE(), :location)
                         
                         SET IDENTITY_INSERT BuyerDetails OFF`,
 
@@ -82,6 +83,55 @@ export const queries = {
     
     deactivateUsers: `UPDATE AccessorDetails
         SET isActive = 0
-    WHERE accessId in (:deactivateIds)`
-    
+    WHERE accessId in (:deactivateIds)`,
+
+    updateWarrentyType: `UPDATE BatteryDetails
+    SET
+        isWarrentyBattery = :isReplacable,
+        warrentyType = :type
+    WHERE
+        batteryNumber = :batteryNumber
+    AND
+        batteryId = :batteryId`,
+
+
+    checkForTableExists: `SELECT COUNT (warrentyBatteryId)  as totalCount FROM WarrentyDetails`,
+
+    saveWarrentyBattery: `SET IDENTITY_INSERT WarrentyDetails ON
+    INSERT INTO WarrentyDetails(
+        warrentyBatteryId,
+        oldBatteryId,
+        exchangeReason,
+        warrentyBatteryNumber,
+        replacedDate,
+        exchangerName)
+    VALUES(
+        :warrentyBatteryId,
+        :oldBatteryId,
+        :exchangeReason,
+        :warrentyBatteryNumber,
+        GETDATE(),
+        :exchangerName)
+
+    SET IDENTITY_INSERT WarrentyDetails ON`,
+
+    getWarrentyBatteries: `SELECT 
+        b.batteryId,
+        w.warrentyBatteryNumber,
+        b.batteryNumber as oldBatteryNumber,
+        w.replacedDate,
+        buy.purchasedDate,
+        buy.name,
+        b.totalPrice,
+        buy.contact
+    FROM WarrentyDetails w
+    INNER JOIN BatteryDetails b 
+    ON
+        w.oldBatteryId = b.batteryId
+    INNER JOIN BatteryBikeBuyerIds bbb
+    ON
+        bbb.batteryId = w.warrentyBatteryId
+    INNER JOIN BuyerDetails buy
+    ON
+        buy.buyerId = bbb.buyerId`
 }
