@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+/* import { Router, Request, Response } from 'express';
 import { dao } from '../dao/dao';
 
 const router: Router = Router();
@@ -17,3 +17,4 @@ router.get('/batteryDetails/:batteryBikeBuyerId', (req: Request, res: Response) 
 });
 
 export const BatteryDetailsController: Router = router;
+ */

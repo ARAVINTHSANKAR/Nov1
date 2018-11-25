@@ -41,6 +41,7 @@ export const queries = {
                         (:batteryBikeBuyerId, :batteryId, :bikeId, :buyerId)`,
 
     getSalesDetails: `SELECT 
+                bbbids.batteryBikeBuyerId,
                 btd.batteryNumber,
                 bm.batteryModel,
                 bb.batteryBrand,
@@ -64,5 +65,23 @@ export const queries = {
     INNER JOIN BuyerDetails on
         (BatteryBikeBuyerIds.buyerId= BuyerDetails.buyerId)
     where 
-        batteryBikeBuyerId = :batteryBikeBuyerId`
+        batteryBikeBuyerId = :batteryBikeBuyerId`,
+
+    searchParticularBattery: `
+    `,
+
+    fetchStockList: `SELECT *
+    FROM
+        StockDetails`,
+
+    fetchAllUsers: `select * from AccessorDetails`,
+
+    activateUsers: `UPDATE AccessorDetails
+        SET isActive = 1
+    WHERE accessId in (:activateIds)`,
+    
+    deactivateUsers: `UPDATE AccessorDetails
+        SET isActive = 0
+    WHERE accessId in (:deactivateIds)`
+    
 }

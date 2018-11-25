@@ -72,13 +72,13 @@ export class dao {
                     replacements: { payLoadName: requestedUser.name },
                     type: sequelize.QueryTypes.SELECT, transaction
                 });
-            await transaction.commit();
-            if (userDetails.length > 0) {
-                const isAuthSuccess = (requestedUser.password == userDetails[0].password.trim());
-                if (isAuthSuccess) {
-                    daoObj.successBag.comments = 'Authentication success';
-                    daoObj.successBag.dbData = userDetails;
-                    res.send(daoObj.successBag);
+                if (userDetails.length > 0) {
+                    const isAuthSuccess = (requestedUser.password == userDetails[0].password.trim());
+                    if (isAuthSuccess) {
+                        await transaction.commit();
+                        daoObj.successBag.comments = 'Authentication success';
+                        daoObj.successBag.dbData = userDetails;
+                        res.send(daoObj.successBag);
                 } else {
                     throw 'Incorrect Password';
                 }
@@ -247,6 +247,76 @@ export class dao {
         } catch (error) {
             await transaction.rollback();
             daoObj.errorBag.comments = 'FAILED';
+            daoObj.errorBag.dbData = error;
+            res.send(daoObj.errorBag);
+        }
+    }
+
+    public getStockDetails = async (req: Request, res: Response) => {
+        let transaction;
+        let daoObj = new dao();
+        transaction = await sequelize.transaction();
+        try {
+            const stockDetails = await sequelize.query(queries.fetchStockList,
+                {
+                    type: sequelize.QueryTypes.SELECT, transaction
+                });
+            await transaction.commit();
+            daoObj.successBag.comments = 'success';
+            daoObj.successBag.dbData = stockDetails;
+            res.send(daoObj.successBag);
+        } catch (error) {
+            await transaction.rollback();
+            daoObj.errorBag.comments = "Error in fetching data";
+            daoObj.errorBag.dbData = error ? error : [];
+            res.send(daoObj.errorBag)
+        }
+    }
+
+    public getAllUser = async(req: Request, res: Response) => {
+        let transaction;
+        let daoObj = new dao();
+        transaction = await sequelize.transaction();
+        try {
+            const allUser = await sequelize.query(queries.fetchAllUsers, {type: sequelize.QueryTypes.SELECT});
+            await transaction.commit();
+            daoObj.successBag.comments = 'Success';
+            daoObj.successBag.dbData = allUser;
+            res.send(daoObj.successBag);
+        } catch(error) {
+            await transaction.rollback();
+            daoObj.errorBag.comments = 'Failed';
+            daoObj.errorBag.dbData = error;
+            res.send(daoObj.errorBag);
+        }
+    }
+
+    public activateDeactivateUser =  async(req: Request, res: Response) => {
+        let transaction;
+        let daoObj = new dao();
+        transaction = await sequelize.transaction();
+        let values: any = {};
+        try {
+            if(req.body['activateIds'].length) {
+                values['activateIds'] = req.body['activateIds'];
+                await sequelize.query(queries.activateUsers, {
+                    type: sequelize.QueryTypes.UPDATE,
+                    replacements: values
+                });
+            }
+            if(req.body['deactivateIds'].length) {
+                values['deactivateIds'] = req.body['deactivateIds'];
+                await sequelize.query(queries.deactivateUsers, {
+                    type: sequelize.QueryTypes.UPDATE,
+                        replacements: values
+                });
+            }
+            await transaction.commit();
+            daoObj.successBag.comments = 'Success';
+            res.send(daoObj.successBag);
+        } catch(error) {
+            await transaction.rollback();
+            daoObj.errorBag.comments = 'Failed';
             daoObj.errorBag.dbData = error;
             res.send(daoObj.errorBag);
         }
