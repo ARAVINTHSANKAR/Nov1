@@ -115,7 +115,7 @@ export const queries = {
 
     SET IDENTITY_INSERT WarrentyDetails ON`,
 
-    getWarrentyBatteries: `SELECT 
+    getWarrentyBatteries: `SELECT
         b.batteryId,
         w.warrentyBatteryNumber,
         b.batteryNumber as oldBatteryNumber,
@@ -125,7 +125,7 @@ export const queries = {
         b.totalPrice,
         buy.contact
     FROM WarrentyDetails w
-    INNER JOIN BatteryDetails b 
+    INNER JOIN BatteryDetails b
     ON
         w.oldBatteryId = b.batteryId
     INNER JOIN BatteryBikeBuyerIds bbb
@@ -133,5 +133,19 @@ export const queries = {
         bbb.batteryId = w.warrentyBatteryId
     INNER JOIN BuyerDetails buy
     ON
-        buy.buyerId = bbb.buyerId`
+        buy.buyerId = bbb.buyerId`,
+
+    fetchBatteryBrands: `SELECT
+        b.batteryBrandId,
+        b.batteryBrand
+    FROM
+        BatteryBrands b
+    ORDER BY b.batteryBrandId asc`,
+
+    fetchBatteryModels: `SELECT
+        m.batteryModelId,
+        m.batteryModel
+    FROM
+        BatteryModels m
+    ORDER BY m.batteryModelId asc`
 }

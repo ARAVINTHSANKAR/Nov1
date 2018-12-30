@@ -78,6 +78,7 @@ export class dao {
                         await transaction.commit();
                         daoObj.successBag.comments = 'Authentication success';
                         daoObj.successBag.dbData = userDetails;
+                        daoObj.successBag['status'] = 1;
                         res.send(daoObj.successBag);
                 } else {
                     throw 'Incorrect Password';
@@ -89,6 +90,7 @@ export class dao {
             transaction.rollback();
             daoObj.errorBag.comments = "Something went wrong";
             daoObj.errorBag.dbData = error ? error : [];
+            daoObj.errorBag['status'] = 0;
             res.send(daoObj.errorBag);
         };
     }
@@ -405,4 +407,31 @@ export class dao {
             res.send(daoObj.errorBag);
         }
     }
+
+    public getBatteryBrandsModels = async (req: Request, res: Response) => {
+        let values: any = {};
+        let transaction;
+        let daoObj = new dao();
+        transaction = await sequelize.transaction();
+        try {
+            const brandsResult = await sequelize.query(queries.fetchBatteryBrands, {
+                type: sequelize.QueryTypes.SELECT
+            });
+            const modelsResult = await sequelize.query(queries.fetchBatteryModels, {
+                type: sequelize.QueryTypes.SELECT
+            });
+            daoObj.successBag.comments = 'Success';
+            daoObj.successBag.dbData = {};
+            daoObj.successBag.dbData['batteryModels'] = modelsResult;
+            daoObj.successBag.dbData['batteryBrands'] = brandsResult;
+            await transaction.commit();
+            res.send(daoObj.successBag);
+        } catch (error) {
+            await transaction.rollback();
+            daoObj.errorBag.comments = 'Failed';
+            daoObj.errorBag.dbData = error;
+            res.send(daoObj.errorBag);
+        }
+    }
 }
+ 

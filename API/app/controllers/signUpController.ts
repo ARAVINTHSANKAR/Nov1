@@ -48,4 +48,8 @@ router.get('/getWarrentyBatteries', (req: Request, res: Response) => {
     daoObj.fetchWarrentyBatteryDetails(req, res);
 });
 
+router.get('/batterybrandsModels', (req: Request, res: Response) => {
+    daoObj.getBatteryBrandsModels(req, res);
+});
+
 export const signUpController: Router = router;
